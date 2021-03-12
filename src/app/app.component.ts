@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Book } from './books/book.model';
+import { v4 as uuid } from 'uuid';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +8,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'mean-front';
+  books: Book[] = [];
+
+  handleAddBook(book: Omit<Book, 'id'>) {
+    this.books.push({ id: uuid(), ...book });
+  }
 }

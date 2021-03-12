@@ -1,0 +1,24 @@
+<mat-card>
+  <mat-form-field appearance="outline">
+    <mat-label>Título</mat-label>
+    <input matInput [(ngModel)]="book.title">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Author</mat-label>
+    <input matInput [(ngModel)]="book.author">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Total de Páginas</mat-label>
+    <input type="number" matInput [(ngModel)]="book.totalPages">
+  </mat-form-field>
+
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="handleAddBook()"
+  >
+    Adicionar
+  </button>
+</mat-card>
