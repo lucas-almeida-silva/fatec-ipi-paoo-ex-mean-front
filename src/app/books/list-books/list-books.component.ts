@@ -18,8 +18,12 @@ export class ListBooksComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.booksSubscription = this.bookService.getBooks().subscribe(
-      (books: Book[]) => this.books = books
+    this.bookService.getBooks();
+
+    this.booksSubscription = this.bookService.getBooksObservable().subscribe(
+      (books: Book[]) => {
+        this.books = books;
+      }
     )
   }
 

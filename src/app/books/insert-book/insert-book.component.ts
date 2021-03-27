@@ -20,7 +20,7 @@ export class InsertBookComponent {
   handleSubmit() {
     if(this.registerBookForm.invalid) return;
 
-    const book = Object.assign({ id: uuid() }, this.registerBookForm.value as Book);
+    const book = this.registerBookForm.value as Book;
 
     this.bookService.addBook(book);
 
