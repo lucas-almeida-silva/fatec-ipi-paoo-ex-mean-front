@@ -1,17 +1,16 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-require('dotenv').config({ path: `${__dirname}/.env` });
 
 const Book = require('./models/Book');
-const dbConfig = require('./config/database.js');
+const { mongoDb } = require('./config/database.js');
 
 mongoose.connect(
-  `mongodb+srv://${ dbConfig.mongoDb.user}:${ dbConfig.mongoDb.password}@cluster0.0vydl.mongodb.net/${dbConfig.mongoDb.database}?retryWrites=true&w=majority`,
+  `mongodb+srv://${mongoDb.user}:${mongoDb.password}@${mongoDb.cluster}.mongodb.net/${mongoDb.database}?retryWrites=true&w=majority`,
   { useNewUrlParser: true, useUnifiedTopology: true }
 )
 .then(() => console.log('Connection to MongoDB successful'))
-.catch(() => console.log('Connection to MongoDB failed'));
+.catch((ex) => console.log('Connection to MongoDB failed: ' + ex));
 
 const app = express();
 
@@ -33,9 +32,17 @@ app.post('/api/books', (req, res) => {
     totalPages
   });
 
-  book.save();
+  book.save().then(createdBook => {
+    res.status(201).send({ id: createdBook._id });
+  });
+});
 
-  res.status(201).send(book);
+app.delete('/api/books/:id', (req, res) => {
+  const id = req.params.id;
+
+  Book.deleteOne({_id: id}).then(() => {
+    res.status(204).send();
+  });
 });
 
 module.exports = app;

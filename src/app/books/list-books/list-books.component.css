@@ -1,19 +1,39 @@
+header h1 {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+header .mat-divider {
+  margin: 1.8rem 0;
+  font-size: 700px;
+}
+
 mat-accordion {
   margin-bottom: 5rem;
 }
 
-mat-expansion-panel-header {
+mat-accordion mat-expansion-panel-header {
   font-weight: 500;
   font-size: 1.2rem;
   padding: 1rem 1.5rem;
 }
 
-mat-divider {
+mat-accordion .mat-divider {
   margin-bottom: 1rem;
 }
 
-p {
+mat-accordion p {
   font-size: 1rem;
+}
+
+mat-accordion mat-expansion-panel mat-action-row button {
+  font-size: 1rem;
+}
+
+.loading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
 }
 
 p.any-book {

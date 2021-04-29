@@ -1,1 +1,17 @@
-<mat-toolbar color="primary">{{title}}</mat-toolbar>
+<mat-toolbar color="primary">
+  <a routerLink="/">
+    <h1>{{title}}</h1>
+  </a>
+  <ul>
+    <li>
+      <a
+        mat-raised-button
+        class="add-book"
+        routerLink="/create"
+      >
+        <mat-icon>add</mat-icon>
+        <mat-label>Adicionar</mat-label>
+      </a>
+    </li>
+  </ul>
+</mat-toolbar>

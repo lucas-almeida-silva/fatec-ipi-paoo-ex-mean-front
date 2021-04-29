@@ -1,3 +1,8 @@
+<header>
+  <h1>Livros</h1>
+  <mat-divider></mat-divider>
+</header>
+
 <mat-accordion *ngIf="books.length">
   <mat-expansion-panel *ngFor="let book of books">
     <mat-expansion-panel-header>{{book.title}}</mat-expansion-panel-header>
@@ -11,9 +16,19 @@
       <strong>Total de Páginas:</strong>
       {{book.totalPages}}
     </p>
+    <mat-action-row>
+      <button mat-button color="primary">Editar</button>
+      <button mat-button color="warn" (click)="handleRemoveBook(book.id)">
+        Remover
+      </button>
+    </mat-action-row>
   </mat-expansion-panel>
 </mat-accordion>
 
-<p class="any-book" *ngIf="!books.length">
+<div class="loading">
+  <mat-spinner mode="indeterminate" *ngIf="loading"></mat-spinner>
+</div>
+
+<p class="any-book" *ngIf="!books.length && !loading">
   Nenhum livro cadastrado
 </p>

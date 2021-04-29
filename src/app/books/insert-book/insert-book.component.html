@@ -27,6 +27,7 @@
       <input type="number" matInput name="totalPages" ngModel required>
       <mat-error *ngIf="registerBookForm.controls.totalPages?.hasError('required')">
         Campo obrigatório
+        {{handleSubmit()}}
       </mat-error>
     </mat-form-field>
 

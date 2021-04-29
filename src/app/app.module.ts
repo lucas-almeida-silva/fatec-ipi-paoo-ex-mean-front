@@ -10,6 +10,7 @@ import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
 import { InsertBookComponent } from './books/insert-book/insert-book.component';
 import { ListBooksComponent } from './books/list-books/list-books.component';
+import { AppRoutingModule } from './app-routing.module';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { ListBooksComponent } from './books/list-books/list-books.component';
     BrowserAnimationsModule,
     FormsModule,
     HttpClientModule,
-    AngularMaterialModule
+    AngularMaterialModule,
+    AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]

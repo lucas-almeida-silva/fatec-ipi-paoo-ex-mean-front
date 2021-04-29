@@ -1,5 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 
 import { Book } from '../book.model';
 import { BookService } from '../book.service';
@@ -12,7 +13,7 @@ import { BookService } from '../book.service';
 export class InsertBookComponent {
   @ViewChild('registerBookForm') registerBookForm: NgForm;
 
-  constructor(private bookService: BookService) {
+  constructor(private bookService: BookService, private router: Router) {
 
   }
 
@@ -23,6 +24,6 @@ export class InsertBookComponent {
 
     this.bookService.addBook(book);
 
-    this.registerBookForm.resetForm();
+    this.router.navigateByUrl('/');
   }
 }
