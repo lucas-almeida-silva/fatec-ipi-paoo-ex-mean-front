@@ -9,6 +9,9 @@
 - Services
 - Observables
 - Angular Material
+- Template-Driven Form
+- Reactive Forms
+- HTTP requests
 
 ### Node
 
@@ -16,3 +19,6 @@
 - HTTP protocol and methods
 - Middlewares
 - MongoDB use
+- Express Router
+- Upload files
+- Static routes
