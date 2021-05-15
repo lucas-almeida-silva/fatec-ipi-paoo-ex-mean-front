@@ -1,7 +1,11 @@
 const { Router } = require('express');
+const multer = require('multer');
 const Book = require('../models/Book');
+const uploadConfig = require('../config/upload');
 
 const booksRouter = Router();
+
+const upload = multer(uploadConfig.multer);
 
 booksRouter.get('/', (req, res) => {
   Book.find().then(books => {
@@ -24,13 +28,15 @@ booksRouter.get('/:id', (req, res) => {
   });
 });
 
-booksRouter.post('/', (req, res) => {
+booksRouter.post('/', upload.single('image'), (req, res) => {
   const { title, author, totalPages } = req.body;
+  const image = req.file.filename;
 
   const book = new Book({
     title,
     author,
-    totalPages
+    totalPages,
+    image
   });
 
   book.save().then(createdBook => {

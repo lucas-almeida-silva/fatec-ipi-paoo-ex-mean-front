@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 
-import { Book } from './book.model';
+import { Book, PostBook } from './book.model';
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
@@ -35,17 +35,24 @@ export class BookService {
     return this.httpClient.get<Book>(`${this.apiUrl}/books/${id}`);
   }
 
-  addBook(book: Omit<Book, 'id'>): void {
-    this.httpClient.post<{id: string}>(`${this.apiUrl}/books`, book).subscribe(
-      ({id}) => {
-        this.books.push({id, ...book});
-        this.updateBooksSubject();
-        this.router.navigateByUrl('/');
-      }
-    );
+  addBook(book: Omit<PostBook, 'id'>): void {
+    const data = new FormData();
+    data.append('title', book.title);
+    data.append('author', book.author);
+    data.append('totalPages', String(book.totalPages));
+    data.append('image', book.image);
+
+    this.httpClient.post<Book>(`${this.apiUrl}/books`, data)
+      .subscribe(
+        (book) => {
+          this.books.push(book);
+          this.updateBooksSubject();
+          this.router.navigateByUrl('/');
+        }
+      );
   }
 
-  updateBook(book: Book): void {
+  updateBook(book: PostBook): void {
     const bookId = book.id;
 
     const updateBook = { ...book };
@@ -54,8 +61,16 @@ export class BookService {
     this.httpClient.put(`${this.apiUrl}/books/${bookId}`, updateBook).subscribe(
       () => {
         const index = this.books.findIndex(book => book.id === bookId);
-        this.books[index] = book;
-        this.$books.next([...this.books]);
+
+        this.books[index] = {
+          id: book.id,
+          title: book.title,
+          author: book.author,
+          totalPages: book.totalPages,
+          imageUrl: this.books[index].imageUrl
+        };
+
+        this.updateBooksSubject();
         this.router.navigateByUrl('/');
       }
     );

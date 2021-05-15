@@ -47,3 +47,7 @@ Thumbs.db
 
 # Environtment variables file
 **/.env
+
+# Uploaded images
+backend/images/**
+!backend/images/.gitkeep

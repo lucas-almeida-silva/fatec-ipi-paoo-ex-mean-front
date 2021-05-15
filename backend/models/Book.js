@@ -12,6 +12,10 @@ const bookSchema = mongoose.Schema({
   totalPages: {
     type: Number,
     required: true,
+  },
+  image: {
+    type: String,
+    required: true,
   }
 });
 
@@ -21,6 +25,12 @@ bookSchema.set('toJSON', {
 
     delete obj._id;
     delete obj.__v;
+
+    obj.imageUrl = obj.image
+      ? `${process.env.API_URL}/images/${obj.image}`
+      : null;
+
+    delete obj.image;
   }
 });
 

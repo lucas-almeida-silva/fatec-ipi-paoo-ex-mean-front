@@ -1,9 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
-import { Book } from '../book.model';
+import { PostBook } from '../book.model';
 import { BookService } from '../book.service';
+import { imageMimeTypeValidator } from 'src/app/utils/validators/imageMimeType.validator';
 
 @Component({
   selector: 'app-insert-book',
@@ -11,9 +12,10 @@ import { BookService } from '../book.service';
   styleUrls: ['./insert-book.component.css']
 })
 export class InsertBookComponent implements OnInit {
-  book: Book;
-  isLoading = false;
+  book: PostBook;
+  imagePreview: string;
   bookForm: FormGroup;
+  isLoading = false;
 
   constructor(
     private bookService: BookService,
@@ -27,7 +29,8 @@ export class InsertBookComponent implements OnInit {
     this.bookForm = this.formBuilder.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
       author: ['', [Validators.required, Validators.minLength(3)]],
-      totalPages: ['', [Validators.required, Validators.min(1)]]
+      totalPages: ['', [Validators.required, Validators.min(1)]],
+      image: [null, Validators.required, [imageMimeTypeValidator]]
     });
 
     this.activatedRoute.paramMap.subscribe(params => {
@@ -39,12 +42,18 @@ export class InsertBookComponent implements OnInit {
         this.bookService.getBook(bookId).subscribe(
           (book) => {
             this.isLoading = false;
-            this.book = book;
+            this.book = {
+              id: book.id,
+              title: book.title,
+              author: book.author,
+              totalPages: book.totalPages
+            };
 
             this.bookForm.setValue({
               title: this.book.title,
               author: this.book.author,
-              totalPages: this.book.totalPages
+              totalPages: this.book.totalPages,
+              image: null
             });
           },
           () => {
@@ -58,7 +67,7 @@ export class InsertBookComponent implements OnInit {
   handleSubmit() {
     if(this.bookForm.invalid) return;
 
-    const book = this.bookForm.value as Book;
+    const book = this.bookForm.value as PostBook;
 
     if(this.book) {
       this.bookService.updateBook({id: this.book.id, ...book});
@@ -66,5 +75,22 @@ export class InsertBookComponent implements OnInit {
     else {
       this.bookService.addBook(book);
     }
+  }
+
+  handleSelectImage(event: Event) {
+    const image = (event.target as HTMLInputElement).files[0];
+
+    this.bookForm.patchValue({'image': image});
+    this.bookForm.get('image').updateValueAndValidity();
+
+    const fileReader = new FileReader();
+
+    fileReader.onload = () => {
+      this.bookForm.get('image').valid
+        ? this.imagePreview = fileReader.result as string
+        : this.imagePreview = null;
+    };
+
+    fileReader.readAsDataURL(image);
   }
 }

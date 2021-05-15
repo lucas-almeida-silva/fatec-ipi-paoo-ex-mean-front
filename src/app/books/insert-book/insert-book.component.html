@@ -11,6 +11,17 @@
       </mat-error>
     </mat-form-field>
 
+    <div class="image-container">
+      <button mat-stroked-button type="button" (click)="fileSelect.click()">
+        Selecionar imagem
+      </button>
+      <input type="file" (change)="handleSelectImage($event)" #fileSelect />
+      <img [src]="imagePreview" *ngIf="imagePreview" />
+      <mat-error *ngIf="bookForm.get('image').hasError('invalidMimeType')">
+        Imagem inválida
+      </mat-error>
+    </div>
+
     <mat-form-field appearance="outline">
       <mat-label>Author</mat-label>
       <input matInput name="author" formControlName="author">
