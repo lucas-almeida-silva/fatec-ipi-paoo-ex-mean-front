@@ -1,15 +1,31 @@
 const { Router } = require('express');
 const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
+
 const Book = require('../models/Book');
 const uploadConfig = require('../config/upload');
 
 const booksRouter = Router();
-
 const upload = multer(uploadConfig.multer);
 
 booksRouter.get('/', (req, res) => {
-  Book.find().then(books => {
-    res.json(books);
+  const page = Number(req.query.page);
+  const limit = Number(req.query.limit);
+
+  let query = Book.find();
+
+  if(page && limit) {
+    query = query.skip((page - 1) * limit).limit(limit);
+  }
+
+  query.then(books => {
+    Book.countDocuments().then(total => {
+      res.json({
+        books,
+        total
+      });
+    })
   });
 });
 
@@ -44,9 +60,10 @@ booksRouter.post('/', upload.single('image'), (req, res) => {
   });
 });
 
-booksRouter.put('/:id', (req, res) => {
+booksRouter.put('/:id', upload.single('image'), (req, res) => {
   const { id } = req.params
   const { title, author, totalPages } = req.body;
+  const image = req.file;
 
   const book = {
     title,
@@ -54,7 +71,23 @@ booksRouter.put('/:id', (req, res) => {
     totalPages
   };
 
-  Book.updateOne({_id: id}, book).then(() => {
+  if(image) {
+    book.image = image.filename;
+
+    Book.findById(id).then(book => {
+      if(book?.image) {
+        const filePath = path.join(uploadConfig.imagesFolder, book.image);
+
+        fs.stat(filePath, (err, stats) => {
+          if(!err) {
+            fs.unlinkSync(filePath);
+          }
+        });
+      }
+    });
+  }
+
+  Book.findByIdAndUpdate({_id: id}, { $set: book }).then(() => {
     res.status(200).send();
   });
 });
@@ -62,7 +95,19 @@ booksRouter.put('/:id', (req, res) => {
 booksRouter.delete('/:id', (req, res) => {
   const id = req.params.id;
 
-  Book.deleteOne({_id: id}).then(() => {
+  Book.findById(id).then(book => {
+    if(book?.image) {
+      const filePath = path.join(uploadConfig.imagesFolder, book.image);
+
+      fs.stat(filePath, (err, stats) => {
+        if(!err) {
+          fs.unlinkSync(filePath);
+        }
+      });
+    }
+  });
+
+  Book.findByIdAndDelete(id).then(() => {
     res.status(204).send();
   });
 });

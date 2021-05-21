@@ -17,6 +17,9 @@
       </button>
       <input type="file" (change)="handleSelectImage($event)" #fileSelect />
       <img [src]="imagePreview" *ngIf="imagePreview" />
+      <mat-error *ngIf="bookForm.get('image').touched && bookForm.get('image').hasError('required')">
+        Imagem obrigatória
+      </mat-error>
       <mat-error *ngIf="bookForm.get('image').hasError('invalidMimeType')">
         Imagem inválida
       </mat-error>

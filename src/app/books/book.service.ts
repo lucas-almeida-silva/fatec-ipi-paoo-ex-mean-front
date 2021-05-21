@@ -1,32 +1,41 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Subject, Observable } from 'rxjs';
 
-import { Book, PostBook } from './book.model';
+import { Book } from './models/book.model';
+import { SaveBook } from './models/saveBook.model';
+import { BooksList } from './models/booksList.model';
+
 import { environment } from 'src/environments/environment';
-import { Observable } from 'rxjs';
-import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BookService {
   private books: Book[] = [];
-  private $books = new Subject<Book[]>();
+  private $books = new Subject<BooksList>();
   private apiUrl = environment.apiUrl;
 
-  constructor(
-    private httpClient: HttpClient,
-    private router: Router
-  ) {
+  constructor(private httpClient: HttpClient) {
 
   }
 
-  getBooks(): void {
-    this.httpClient.get<Book[]>(`${this.apiUrl}/books`).subscribe(
-      (books) => {
+  getBooks(page: number, limit: number): void {
+    const params = new HttpParams({
+      fromObject: {
+        page: String(page),
+        limit: String(limit)
+      }
+    });
+
+    this.httpClient.get<BooksList>(`${this.apiUrl}/books`, { params })
+    .subscribe(
+      ({ books, total }) => {
         this.books = books;
-        this.updateBooksSubject();
+        this.$books.next({
+          books: [...this.books],
+          total
+        });
       }
     );
   }
@@ -35,61 +44,45 @@ export class BookService {
     return this.httpClient.get<Book>(`${this.apiUrl}/books/${id}`);
   }
 
-  addBook(book: Omit<PostBook, 'id'>): void {
+  addBook(book: Omit<SaveBook, 'id'>) {
     const data = new FormData();
+
     data.append('title', book.title);
     data.append('author', book.author);
     data.append('totalPages', String(book.totalPages));
     data.append('image', book.image);
 
-    this.httpClient.post<Book>(`${this.apiUrl}/books`, data)
-      .subscribe(
-        (book) => {
-          this.books.push(book);
-          this.updateBooksSubject();
-          this.router.navigateByUrl('/');
-        }
-      );
+    return this.httpClient.post<Book>(`${this.apiUrl}/books`, data)
   }
 
-  updateBook(book: PostBook): void {
+  updateBook(book: SaveBook) {
     const bookId = book.id;
 
-    const updateBook = { ...book };
-    delete updateBook.id
+    let bookData;
 
-    this.httpClient.put(`${this.apiUrl}/books/${bookId}`, updateBook).subscribe(
-      () => {
-        const index = this.books.findIndex(book => book.id === bookId);
+    if(book.image) {
+      bookData = new FormData();
 
-        this.books[index] = {
-          id: book.id,
-          title: book.title,
-          author: book.author,
-          totalPages: book.totalPages,
-          imageUrl: this.books[index].imageUrl
-        };
+      bookData.append('title', book.title);
+      bookData.append('author', book.author);
+      bookData.append('totalPages', String(book.totalPages));
+      bookData.append('image', book.image);
+    } else {
+      bookData = {
+        title: book.title,
+        author: book.author,
+        totalPages: book.totalPages
+      };
+    }
 
-        this.updateBooksSubject();
-        this.router.navigateByUrl('/');
-      }
-    );
+    return this.httpClient.put(`${this.apiUrl}/books/${bookId}`, bookData);
   }
 
-  deleteBook(id: string): void {
-    this.httpClient.delete(`${this.apiUrl}/books/${id}`).subscribe(
-      () => {
-        this.books = this.books.filter(book => book.id !== id);
-        this.updateBooksSubject();
-      }
-    )
+  deleteBook(id: string) {
+    return this.httpClient.delete(`${this.apiUrl}/books/${id}`);
   }
 
-  getBooksObservable(): Observable<Book[]> {
+  getBooksObservable(): Observable<BooksList> {
     return this.$books.asObservable();
-  }
-
-  private updateBooksSubject() {
-    this.$books.next([...this.books]);
   }
 }

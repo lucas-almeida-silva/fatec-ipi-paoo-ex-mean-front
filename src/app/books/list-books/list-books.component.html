@@ -30,6 +30,15 @@
 
 <mat-spinner mode="indeterminate" *ngIf="isLoading"></mat-spinner>
 
+<mat-paginator
+  *ngIf="books.length"
+  [length]="totalBooks"
+  [pageSize]="pageLimit"
+  [pageSizeOptions]="[10, 20, 30, 40, 50, 100]"
+  (page)="handleChangePage($event)"
+>
+</mat-paginator>
+
 <p class="any-book" *ngIf="!books.length && !isLoading">
   Nenhum livro cadastrado
 </p>

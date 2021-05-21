@@ -6,10 +6,3 @@ export interface Book {
   imageUrl: string;
 }
 
-export interface PostBook {
-  id: string;
-  title: string;
-  author: string;
-  totalPages: number;
-  image?: File;
-}

@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 
-import { PostBook } from '../book.model';
+import { SaveBook } from '../models/saveBook.model';
 import { BookService } from '../book.service';
 import { imageMimeTypeValidator } from 'src/app/utils/validators/imageMimeType.validator';
 
@@ -12,13 +13,14 @@ import { imageMimeTypeValidator } from 'src/app/utils/validators/imageMimeType.v
   styleUrls: ['./insert-book.component.css']
 })
 export class InsertBookComponent implements OnInit {
-  book: PostBook;
+  book: SaveBook;
   imagePreview: string;
   bookForm: FormGroup;
   isLoading = false;
 
   constructor(
     private bookService: BookService,
+    private router: Router,
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder
   ) {
@@ -55,6 +57,9 @@ export class InsertBookComponent implements OnInit {
               totalPages: this.book.totalPages,
               image: null
             });
+
+            this.imagePreview = book.imageUrl;
+            this.bookForm.get('image').clearValidators();
           },
           () => {
             this.isLoading = false;
@@ -65,15 +70,35 @@ export class InsertBookComponent implements OnInit {
   }
 
   handleSubmit() {
+    this.bookForm.markAllAsTouched();
+
     if(this.bookForm.invalid) return;
 
-    const book = this.bookForm.value as PostBook;
+    const book = this.bookForm.value as SaveBook;
+
+    this.isLoading = true;
 
     if(this.book) {
-      this.bookService.updateBook({id: this.book.id, ...book});
+      this.bookService.updateBook({id: this.book.id, ...book}).subscribe(
+        () => {
+          this.isLoading = false;
+          this.router.navigateByUrl('/');
+        },
+        () => {
+          this.isLoading = false;
+        }
+      );
     }
     else {
-      this.bookService.addBook(book);
+      this.bookService.addBook(book).subscribe(
+        () => {
+          this.isLoading = false;
+          this.router.navigateByUrl('/');
+        },
+        () => {
+          this.isLoading = false;
+        }
+      );
     }
   }
 
